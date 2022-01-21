@@ -1,0 +1,20 @@
+lsblk
+echo "Enter the drive in which you want to install archlinux: "
+read drive
+cfdisk $drive
+lsblk
+echo "Enter the root partition: "
+read partition
+mkfs.ext4 $partition
+mount $partition /mnt
+iwctl station wlan0 get-networks
+echo "Enter your Network name: "
+read networkname
+echo "Enter the password: "
+read password
+iwctl --passphrase "$password" station wlan0 connect "$networkname"
+echo "Server = http://mirror.xeonbd.com/archlinux/$repo/os/$arch" > /etc/pacman.d/mirrorlist
+pacstrap /mnt base linux linux-firmware grub networkmanager ttf-jetbrains-mono python-pywal
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt passwd; grub-install $drive; grub-mkconfig -o /boot/grub/grub.cfg; systemctl enable NetworkManager
+echo "Server = http://mirror.xeonbd.com/archlinux/$repo/os/$arch" > /mnt/etc/pacman.d/mirrorlist
